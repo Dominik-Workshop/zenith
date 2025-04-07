@@ -1,28 +1,27 @@
-## Main requirements for the distance sensors:
-- high refresh rate (above `50 Hz`, preferably closer to `100 Hz`),
-- measurement distance range from close to `0 m` to at least `1 m`.
-## Candidates:
-| MPN      | refresh rate [Hz] |  range [m]  | Multi zone | FoV (diagonal) [°] | I²C speed [kHz] | Notes                                          |
-| -------- | :---------------: | :---------: | :--------: | :----------------: | :-------------: | ---------------------------------------------- |
-| VL53L0X  |       ~50?        |      2      |     No     |        ~25         |                 |                                                |
-| VL53L4CX |        30?        |  0.01 - 6   |     No     |         18         |      1000       |                                                |
-| VL53L4CD |        100        | 0.001 - 1.2 |     No     |         18         |      1000       |                                                |
-| VL53L5CX |        60         |      4      |    8x8     |         63         |      1000       |                                                |
-| VL53L7CX |        60         | 0.01 - 3.5  |    8x8     |         90         |      1000       | Pin-to-pin and driver compatible with VL53L5CX |
+## Key Requirements: 
+- **Refresh Rate:** > `50 Hz` (ideally closer to `100 Hz`) 
+- **Range:** Close to `0 m` up to at least `1 m`
+## Sensor Candidates Comparison:
+| MPN      | refresh rate [Hz] |  range [m]  | Multi zone | FoV (diagonal) [°] | I²C speed [kHz] | Notes                                                                 |
+| -------- | :---------------: | :---------: | :--------: | :----------------: | :-------------: | --------------------------------------------------------------------- |
+| VL53L0X  |       ~50?        |      2      |     No     |        ~25         |       400       | Older gen; Rate & practical range depend heavily on budget/conditions |
+| VL53L4CX |        30?        |  0.01 - 6   |     No     |         18         |      1000       |                                                                       |
+| VL53L4CD |        100        | 0.001 - 1.2 |     No     |         18         |      1000       | Fast; Optimized for required range (0-1m); Narrow FoV                 |
+| VL53L5CX |        60         |      4      | Yes (8x8)  |         63         |      1000       | Good FoV & range balance                                              |
+| VL53L7CX |        60         | 0.01 - 3.5  | Yes (8x8)  |       **90**       |      1000       | **Widest FoV**; Pin/driver compatible w/ L5CX                         |
+| VL53L8CX |        60         |  0.01 - 4   | Yes (8x8)  |         65         |      1000       | Square FoV (45°x45°); Newer gen                                       |
 
-1. **VL53L0X Refresh Rate:** Depends on the timing budget set. 50Hz requires a short budget (e.g., 20ms), which can reduce maximum range and accuracy, especially in difficult conditions. 33Hz (30ms budget) is more common for better reliability.
-2. **VL53L0X Range:** The 2m is under ideal conditions (good target reflectance, low ambient light). Practical range against non-ideal targets is often closer to 1-1.2m. Minimum distance is around 30mm.
-3. **VL53L5CX/L7CX Refresh Rate:** 60Hz is typically quoted for the full 8x8 resolution mode. Faster rates might be achievable with lower resolution (e.g., 4x4).
+## Top Candidates & Strategy Considerations:
 
-**Analysis based on your requirements ( >50Hz, 0-1m+):**
+1.  **VL53L7CX (Focus on Coverage & Tracking):**
+    * **Pros:** Widest FoV (90°) combined with 8x8 zones allows for excellent opponent detection and tracking over a large area with potentially fewer sensors (e.g., three for 180°). 60Hz rate is sufficient.
+    * **Cons:** Lower angular resolution per zone compared to narrower FoV sensors.
 
-- **VL53L0X:** Borderline refresh rate, practical range might be just sufficient. Older technology.
-- **VL53L4CX:** Meets refresh rate, excellent range (more than needed). Narrow FoV requires precise aiming or multiple sensors.
-- **VL53L4CD:** Meets refresh rate, range is perfectly suited (0-1.3m). Narrow FoV. Seems like a very good candidate if single-point detection is sufficient.
-- **VL53L5CX:** Meets refresh rate (60Hz). Range is good. Multi-zone (8x8) and wide FoV (63°) are major advantages for minisumo, allowing detection over a wider area and potentially understanding opponent angle/position better. Strong candidate.
-- **VL53L7CX:** Similar to L5CX but with an even wider 90° FoV. Excellent for covering a large area in front of the robot with potentially just one sensor, though resolution per degree is lower. Strong candidate.
-  
-  
-  # Curent favourites:
-- **VL53L7CX** - 60Hz but multizone, 3 of them can cover 180deg
-- **VL53L4CD** - 100Hz fastest one
+2.  **VL53L4CD (Focus on Speed & Simplicity):**
+    * **Pros:** Highest refresh rate (100Hz). Range is perfectly suited. Simpler single-point data.
+    * **Cons:** Narrow FoV (18°) requires multiple sensors (4-6+) for good frontal coverage, increasing cost/complexity and providing less positional information than multi-zone.
+
+**Decision Factors:**
+* Prioritize **maximum speed**: Choose **VL53L4CD**.
+* Prioritize **wide-area detection and opponent location tracking** with fewer sensors: Choose **VL53L7CX**.
+* Consider **VL53L5CX/VL53L8CX** as balanced multi-zone alternatives if their specific FoV is preferred or they are more readily available/cost-effective.
